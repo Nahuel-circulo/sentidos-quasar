@@ -1,15 +1,16 @@
 <template>
-  <q-page class="row items-center justify-center">
-    <div class="q-pa-md">
-      <div class="items-center row justify-center justify-center">
-        <div class="q-pa-md">
+  <q-page >
+    <div class="q-pa-xl row items-center justify-center">
+      <div class="col-12 col-md-5 q-my-md">
+        <div class="row items-center justify-center">
           <div class="q-gutter-md row items-start">
-            <q-date  color="info" v-model="date" @click="cambioFecha" />
+            <q-date  color="info" v-model="date" @click="cambioFecha" :locale="myLocale" />
           </div>
         </div>
       </div>
       
-      <q-table
+      <div class="col-12 col-md-7">
+        <q-table
         title="Reservas"
         :rows="reservas"
         :columns="columns"
@@ -18,7 +19,7 @@
         hide-pagination
         no-data-label="No hay reservas"
         :virtual-scroll-item-size="50"
-      >
+        >
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td key="fecha" :props="props">
@@ -42,13 +43,14 @@
             </q-td>
             <q-td key="usuario" :props="props" v-if="props.row.user">
               <q-badge color="info">
-
+                
                 {{props.row.user.name}}
               </q-badge>
             </q-td>
           </q-tr>
         </template>
       </q-table>
+    </div>
     </div>
   </q-page>
 </template>
@@ -93,12 +95,23 @@ export default defineComponent({
         fecha: fechaFormateada,
       })
     }
+    const myLocale = {
+        /* starting with Sunday */
+        days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
+        daysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_'),
+        months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+        monthsShort: 'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split('_'),
+        firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
+        format24h: true,
+        pluralDay: 'dias'
+      }
     return {
       columns,
       reservas,
       verUsuario,
       date,
-      cambioFecha
+      cambioFecha,
+      myLocale
     };
   },
 });

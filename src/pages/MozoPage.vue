@@ -1,7 +1,7 @@
 <template>
   <q-page class="row items-center justify-center">
     <div class="row">
-      <div class="col-4">
+      <div class="col-12 col-md-4">
         <h4 class="text-center q-my-sm">Fecha y Horario</h4>
         <q-select  class="q-mx-auto bg-white" square outlined v-model="horario" style="max-width:290px;" :options="horarioOptions" label="Horario" />
         <div class="items-center row justify-center justify-center">
@@ -9,6 +9,7 @@
             <q-date
               color="info"
               lang
+              :locale="myLocale"
               minimal
               v-model="date"
               @click="cambioFecha"
@@ -17,7 +18,7 @@
         </div>
       </div>
 
-      <div class="col-8">
+      <div class="col-12 col-md-8">
         <h4 class="text-center q-my-sm">Lista de precios</h4>
         <div class="q-pa-md">
           <q-table
@@ -75,7 +76,7 @@
           </q-table>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-12 col-md-4">
         <h4 class="text-center q-my-sm">Mesas Activas</h4>
         <div class="row justify-center items-center q-pa-md">
           <q-markup-table dark class="bg-positive">
@@ -106,7 +107,7 @@
         </div>
       </div>
 
-      <div class="col-8 q-pa-md">
+      <div class="col-12 col-md-8 q-pa-md">
         <h4 class="text-center q-my-sm">Mesa seleccionada</h4>
         <q-table
           :title="
@@ -213,6 +214,16 @@ export default defineComponent({
     const productos = computed(() => $store.getters["mozo/getProductos"]);
     const pedidos = computed(() => $store.getters["mozo/getPedidos"]);
     fetchProductos();
+    const myLocale = {
+        /* starting with Sunday */
+        days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
+        daysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_'),
+        months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+        monthsShort: 'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split('_'),
+        firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
+        format24h: true,
+        pluralDay: 'dias'
+      }
     return {
       cambioFecha,
       date,
@@ -226,7 +237,8 @@ export default defineComponent({
       pedidos,
       fechaFormateada,
       horario,
-      horarioOptions
+      horarioOptions,
+      myLocale
     };
   },
   components: { TableAction },

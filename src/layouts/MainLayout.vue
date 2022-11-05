@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh Lpr lFf">
     <q-header >
       <q-toolbar class="bg-positive ">
         <q-btn
@@ -15,7 +15,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
+    <q-drawer v-model="leftDrawerOpen"  overlay bordered>
       <q-list>
         <q-item-label header> Roles </q-item-label>
 
