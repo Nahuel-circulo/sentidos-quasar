@@ -5,12 +5,12 @@ import { api_payload } from '../../../api/api_payload';
 
 const actions: ActionTree<MozoStateInterface, StateInterface> = {
   fetchReservas: async ({ commit, state }, { fecha }) => {
-    const { data } = await api_payload.get(`/reservations?where[fecha][equals]=${fecha}`)
+    const { data } = await api_payload.get(`/reservations?where[fecha][equals]=${fecha}&where[confirmado][equals]=true`)
     console.log(data)
     commit('SET_RESERVAS', data.docs)
   },
   fetchProductos: async ({ commit, state }) => {
-    const { data } = await api_payload.get(`/producto`)
+    const { data } = await api_payload.get(`/producto?limit=30`)
     console.log(data)
     commit('SET_PRODUCTOS', data.docs)
   },
@@ -29,6 +29,10 @@ const actions: ActionTree<MozoStateInterface, StateInterface> = {
     console.log(data)
     dispatch("fetchPedidos",pedido.identificador)
   },
+  deletePedido: async ({commit,state,dispatch},pedido:string) =>{
+    const {data} = await api_payload.delete(`/pedido/${pedido}`)
+    console.log(data)
+  }
 };
 
 export default actions;

@@ -6,6 +6,9 @@ import { PropietarioStateInterface } from './state';
 const getters: GetterTree<PropietarioStateInterface, StateInterface> = {
   getFacturas: (state) => {
     return state.facturas
+  },
+  getTotal: (state) => {
+    return state.total
   }
 };
 

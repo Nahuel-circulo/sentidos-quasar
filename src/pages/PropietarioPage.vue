@@ -11,31 +11,36 @@
       />
     </div>
     <div class="col-12 col-md-8 row justify-center items-center">
-      <q-table
-        title="Listado de facturas emitidas"
-        :rows="facturas"
-        :columns="columns"
-        virtual-scroll
-        :rows-per-page-options="[0]"
-        hide-pagination
-        no-data-label="No hay facturas - seleccione otro rango de fechas"
-        :virtual-scroll-item-size="50"
-      >
-        <template v-slot:body="props">
-          <q-tr :props="props">
-            <q-td key="nro_factura" :props="props">
-              {{ props.row.id }}
-            </q-td>
-            <q-td key="metodo" :props="props">
-              {{ props.row.metodo_de_pago.name }}
-            </q-td>
-            <q-td key="total" :props="props"> ${{ props.row.total }} </q-td>
-            <q-td key="fecha" :props="props">
-              {{ props.row.createdAt.slice(0,10) }}
-            </q-td>
-          </q-tr>
-        </template>
-      </q-table>
+      <div class="row">
+        <q-table
+        class="col-12"
+          title="Listado de facturas emitidas"
+          :rows="facturas"
+          :columns="columns"
+          virtual-scroll
+          :rows-per-page-options="[0]"
+          hide-pagination
+          no-data-label="No hay facturas - seleccione otro rango de fechas"
+          :virtual-scroll-item-size="50"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td key="nro_factura" :props="props">
+                {{ props.row.id }}
+              </q-td>
+              <q-td key="metodo" :props="props" v-if="props.row.metodo_de_pago">
+                {{ props.row.metodo_de_pago.name }}
+              </q-td>
+              <q-td key="total" :props="props"> ${{ props.row.total }} </q-td>
+              <q-td key="fecha" :props="props">
+                {{ props.row.createdAt.slice(0, 10) }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+
+        <p class="q-mt-md" style="text-align: left;">El total de ingresos en rango de fechas es de ${{ total }}</p>
+      </div>
     </div>
   </q-page>
 </template>
@@ -89,6 +94,7 @@ export default defineComponent({
     };
 
     const facturas = computed(() => $store.getters["propietario/getFacturas"]);
+    const total = computed(() => $store.getters["propietario/getTotal"]);
 
     return {
       rangeTime,
@@ -96,6 +102,7 @@ export default defineComponent({
       myLocale,
       facturas,
       columns,
+      total,
     };
   },
 });

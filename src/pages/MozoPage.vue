@@ -3,7 +3,15 @@
     <div class="row">
       <div class="col-12 col-md-4">
         <h4 class="text-center q-my-sm">Fecha y Horario</h4>
-        <q-select  class="q-mx-auto bg-white" square outlined v-model="horario" style="max-width:290px;" :options="horarioOptions" label="Horario" />
+        <q-select
+          class="q-mx-auto bg-white q-mt-lg"
+          square
+          outlined
+          v-model="horario"
+          style="max-width: 290px"
+          :options="horarioOptions"
+          label="Horario"
+        />
         <div class="items-center row justify-center justify-center">
           <div class="q-pa-md">
             <q-date
@@ -25,9 +33,9 @@
             title="Precios"
             virtual-scroll
             :rows-per-page-options="[0]"
-            hide-pagination
             :rows="productos"
             :columns="columns"
+            v-model:pagination="pagination"
             row-key="name"
             :filter="filter"
           >
@@ -59,8 +67,11 @@
                 <q-td auto-width>
                   <q-td colspan="100%">
                     <TableAction
-                      :identificador="mesaActiva + '-' + fechaFormateada+'-'+horario[0]"
+                      :identificador="
+                        mesaActiva + '-' + fechaFormateada + '-' + horario[0]
+                      "
                       :idProducto="props.row.id"
+                      :MesaActiva="mesaActiva.toString()"
                     />
                   </q-td>
                 </q-td>
@@ -123,6 +134,9 @@
           no-data-label="No hay pedidos"
           :virtual-scroll-item-size="50"
         >
+        <template v-slot:top-right>
+              <q-btn color="green" @click="cerrarMesa(mesaActiva)" outline >Cerrar mesa</q-btn>
+            </template>
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="name" :props="props">
@@ -137,6 +151,11 @@
               <q-td key="subtotal" :props="props">
                 ${{ props.row.producto.price * props.row.cantidad }}
               </q-td>
+              <q-td key="quitar" :props="props">
+                <q-btn @click="eliminarPedido(props.row.id)" flat color="red"
+                  >Quitar</q-btn
+                >
+              </q-td>
             </q-tr>
           </template>
         </q-table>
@@ -149,10 +168,12 @@
 import TableAction from "src/components/TableAction.vue";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
-import moment from 'moment';
+import moment from "moment";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   setup() {
+    const $q = useQuasar();
     const $store = useStore();
     const date = ref<string>("");
     const filter = ref("");
@@ -190,11 +211,18 @@ export default defineComponent({
       },
       { name: "precio", label: "Precio unitario" },
       { name: "subtotal", label: "Subtotal" },
+      { name: "quitar", label: "Quitar" },
     ];
-    const fechaFormateada = ref(moment().format('YYYY-MM-DD'));
-
-    const horario = ref('Matutino');
-    const horarioOptions = ["Matutino","Nocturno"];
+    const fechaFormateada = ref(moment().format("YYYY-MM-DD"));
+    const pagination = ref({
+      sortBy: "desc",
+      descending: false,
+      page: 1,
+      rowsPerPage: 5,
+      // rowsNumber: xx if getting data from a server
+    });
+    const horario = ref("Matutino");
+    const horarioOptions = ["Matutino", "Nocturno"];
 
     const cambioFecha = () => {
       fechaFormateada.value = date.value.replaceAll("/", "-");
@@ -205,7 +233,21 @@ export default defineComponent({
     };
     const fetchPedidos = (mesa: string, fecha: string) => {
       mesaActiva.value = mesa;
-      $store.dispatch("mozo/fetchPedidos", mesa+"-"+fecha+"-"+horario.value[0]);
+      $store.dispatch(
+        "mozo/fetchPedidos",
+        mesa + "-" + fecha + "-" + horario.value[0]
+      );
+    };
+    const eliminarPedido = (pedido: string) => {
+      $q.dialog({
+        title: "Eliminar",
+        message: "Desea eliminar el producto?",
+        cancel: true,
+        persistent: true,
+      }).onOk(() => {
+        console.log("ejecuta")
+        $store.dispatch("mozo/deletePedido", pedido);
+      });
     };
     const fetchProductos = () => {
       $store.dispatch("mozo/fetchProductos");
@@ -215,15 +257,23 @@ export default defineComponent({
     const pedidos = computed(() => $store.getters["mozo/getPedidos"]);
     fetchProductos();
     const myLocale = {
-        /* starting with Sunday */
-        days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split('_'),
-        daysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_'),
-        months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
-        monthsShort: 'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split('_'),
-        firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
-        format24h: true,
-        pluralDay: 'dias'
-      }
+      /* starting with Sunday */
+      days: "Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado".split("_"),
+      daysShort: "Dom_Lun_Mar_Mié_Jue_Vie_Sáb".split("_"),
+      months:
+        "Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre".split(
+          "_"
+        ),
+      monthsShort: "Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic".split("_"),
+      firstDayOfWeek: 1, // 0-6, 0 - Sunday, 1 Monday, ...
+      format24h: true,
+      pluralDay: "dias",
+    };
+
+    const cerrarMesa = (id:string)=>{
+      console.log("cerrar mesa ",id);
+    }
+
     return {
       cambioFecha,
       date,
@@ -238,7 +288,10 @@ export default defineComponent({
       fechaFormateada,
       horario,
       horarioOptions,
-      myLocale
+      myLocale,
+      pagination,
+      eliminarPedido,
+      cerrarMesa
     };
   },
   components: { TableAction },
