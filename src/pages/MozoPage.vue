@@ -104,7 +104,13 @@
                 <td class="text-right">{{ reserva.user.name }}</td>
                 <td class="text-right">
                   <q-btn
-                    @click="fetchPedidos(reserva.mesa.nro_mesa, reserva.fecha)"
+                    @click="
+                      fetchPedidos(
+                        reserva.mesa.nro_mesa,
+                        reserva.fecha,
+                        reserva.user.id
+                      )
+                    "
                     no-caps
                     outline
                     text-color="negative"
@@ -117,7 +123,6 @@
           </q-markup-table>
         </div>
       </div>
-
       <div class="col-12 col-md-8 q-pa-md">
         <h4 class="text-center q-my-sm">Mesa seleccionada</h4>
         <q-table
@@ -134,9 +139,11 @@
           no-data-label="No hay pedidos"
           :virtual-scroll-item-size="50"
         >
-        <template v-slot:top-right>
-              <q-btn color="green" @click="cerrarMesa(mesaActiva)" outline >Cerrar mesa</q-btn>
-            </template>
+          <template v-slot:top-right>
+            <q-btn color="orange" @click="cerrarMesa(mesaActiva)" outline
+              >Cerrar mesa</q-btn
+            >
+          </template>
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td key="name" :props="props">
@@ -164,28 +171,29 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script>
 import TableAction from "src/components/TableAction.vue";
 import { useStore } from "src/store";
-import { computed, defineComponent, ref } from "vue";
+import { computed, ref } from "vue";
 import moment from "moment";
 import { useQuasar } from "quasar";
 
-export default defineComponent({
+export default {
   setup() {
     const $q = useQuasar();
     const $store = useStore();
-    const date = ref<string>("");
+    const date = ref("");
     const filter = ref("");
     const mesaActiva = ref("");
+    const usuarioReserva = ref("");
     const columns = [
       {
         name: "name",
         required: true,
         label: "Producto",
         align: "left",
-        field: (row: any) => row.name,
-        format: (val: any) => `${val}`,
+        field: (row) => row.name,
+        format: (val) => `${val}`,
         sortable: true,
       },
       {
@@ -227,25 +235,27 @@ export default defineComponent({
     const cambioFecha = () => {
       fechaFormateada.value = date.value.replaceAll("/", "-");
       mesaActiva.value = "";
+      usuarioReserva.value = "";
       $store.dispatch("mozo/fetchReservas", {
         fecha: fechaFormateada.value,
       });
     };
-    const fetchPedidos = (mesa: string, fecha: string) => {
+    const fetchPedidos = (mesa, fecha, usuario) => {
       mesaActiva.value = mesa;
+      usuarioReserva.value = usuario;
       $store.dispatch(
         "mozo/fetchPedidos",
         mesa + "-" + fecha + "-" + horario.value[0]
       );
     };
-    const eliminarPedido = (pedido: string) => {
+    const eliminarPedido = (pedido) => {
       $q.dialog({
         title: "Eliminar",
         message: "Desea eliminar el producto?",
         cancel: true,
         persistent: true,
       }).onOk(() => {
-        console.log("ejecuta")
+        console.log("ejecuta");
         $store.dispatch("mozo/deletePedido", pedido);
       });
     };
@@ -270,9 +280,35 @@ export default defineComponent({
       pluralDay: "dias",
     };
 
-    const cerrarMesa = (id:string)=>{
-      console.log("cerrar mesa ",id);
-    }
+    const cerrarMesa = (id) => {
+      let pedidosArray = [];
+      let total = 0;
+      pedidos.value.forEach((pedido) => {
+        pedidosArray.push(pedido.id);
+        total += parseInt(pedido.producto.price) * parseInt(pedido.cantidad);
+      });
+      console.log(pedidosArray, "totla", total);
+      $q.dialog({
+        title: "Cerrar pedidos",
+        message: "Desea cerrar los pedidos y proceder a facturar?",
+        cancel: true,
+        persistent: true,
+      }).onOk(() => {
+        console.log("ejecuta", id);
+        $store.dispatch("mozo/postFactura", {
+          total: total,
+          pedidos: pedidosArray,
+          user: usuarioReserva.value,
+        });
+
+        pedidos.value.forEach((pedido) => {
+          $store.dispatch("mozo/actualizarPedido", {
+            identificador: pedido.identificador,
+            id: pedido.id,
+          });
+        });
+      });
+    };
 
     return {
       cambioFecha,
@@ -291,9 +327,10 @@ export default defineComponent({
       myLocale,
       pagination,
       eliminarPedido,
-      cerrarMesa
+      cerrarMesa,
+      usuarioReserva,
     };
   },
   components: { TableAction },
-});
+};
 </script>

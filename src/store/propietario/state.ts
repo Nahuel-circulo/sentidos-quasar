@@ -26,13 +26,15 @@ export interface Usuario {
 
 export interface PropietarioStateInterface {
   facturas: Factura[];
-  total:String
+  total:String,
+  metodosDePago: MetodoDePago[]
 }
 
 function state(): PropietarioStateInterface {
   return {
     facturas: [],
-    total:'0'
+    total:'0',
+    metodosDePago:[]
   };
 }
 

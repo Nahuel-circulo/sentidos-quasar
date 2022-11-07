@@ -9,6 +9,9 @@ const getters: GetterTree<PropietarioStateInterface, StateInterface> = {
   },
   getTotal: (state) => {
     return state.total
+  },
+  getMetodos: (state) => {
+    return state.metodosDePago
   }
 };
 

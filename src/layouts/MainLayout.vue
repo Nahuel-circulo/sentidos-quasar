@@ -1,7 +1,7 @@
 <template>
-  <q-layout view="hHh Lpr lFf">
-    <q-header >
-      <q-toolbar class="bg-positive ">
+  <q-layout view="hHh Lpr lFf" class="mybg">
+    <q-header>
+      <q-toolbar class="bg-positive">
         <q-btn
           flat
           dense
@@ -15,7 +15,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen"  overlay bordered>
+    <q-drawer v-model="leftDrawerOpen" overlay bordered>
       <q-list>
         <q-item-label header> Roles </q-item-label>
 
@@ -27,67 +27,77 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container class="bg-warning q-px-xl">
-      
+    <q-page-container class=" q-px-xl ">
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import EssentialLink from 'components/EssentialLink.vue';
+import { defineComponent, ref } from "vue";
+import EssentialLink from "components/EssentialLink.vue";
 
 const linksList = [
   {
-    title: 'Mozo',
-    caption: 'quasar.dev',
-    icon: 'restaurant',
-    link: '/mozo'
+    title: "Mozo",
+    caption: "quasar.dev",
+    icon: "restaurant",
+    link: "/mozo",
   },
   {
-    title: 'Maitre',
-    caption: 'github.com/quasarframework',
-    icon: 'menu_book',
-    link: '/maitre'
+    title: "Maitre",
+    caption: "github.com/quasarframework",
+    icon: "menu_book",
+    link: "/maitre",
   },
   {
-    title: 'Caja',
-    caption: 'chat.quasar.dev',
-    icon: 'credit_card',
-    link: '/caja'
+    title: "Caja",
+    caption: "chat.quasar.dev",
+    icon: "credit_card",
+    link: "/caja",
   },
   {
-    title: 'Propietario',
-    caption: 'forum.quasar.dev',
-    icon: 'store',
-    link: '/propietario'
+    title: "Propietario",
+    caption: "forum.quasar.dev",
+    icon: "store",
+    link: "/propietario",
   },
   {
-    title: 'Chef',
-    caption: '@quasarframework',
-    icon: 'soup_kitchen',
-    link: '/chef'
+    title: "Chef",
+    caption: "@quasarframework",
+    icon: "soup_kitchen",
+    link: "/chef",
   },
 ];
 
 export default defineComponent({
-  name: 'MainLayout',
+  name: "MainLayout",
 
   components: {
-    EssentialLink
+    EssentialLink,
   },
 
-  setup () {
-    const leftDrawerOpen = ref(false)
+  setup() {
+    const leftDrawerOpen = ref(false);
 
     return {
       essentialLinks: linksList,
       leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
+      toggleLeftDrawer() {
+        leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+    };
+  },
 });
 </script>
+
+<style lang="scss" scoped>
+.mybg {
+  background-color:hsla(31,0%,100%,1);
+background-image:
+radial-gradient(at 0% 93%, hsla(289,87%,62%,0.37) 0px, transparent 50%),
+radial-gradient(at 10% 3%, hsla(229,83%,79%,0.37) 0px, transparent 50%),
+radial-gradient(at 72% 100%, hsla(1,99%,76%,0.31) 0px, transparent 50%),
+radial-gradient(at 96% 45%, hsla(66,71%,76%,0.35) 0px, transparent 50%);
+}
+</style>

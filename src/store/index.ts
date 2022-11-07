@@ -18,6 +18,9 @@ import { MozoStateInterface } from './mozo/state';
 import propietarioModule from './propietario'
 import { PropietarioStateInterface } from './propietario/state';
 
+import cajaModule from './caja'
+import { CajaStateInterface } from './caja/state';
+
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -34,6 +37,7 @@ export interface StateInterface {
   maitreModule: MaitreStateInterface,
   mozoModule: MozoStateInterface,
   propietarioModule: PropietarioStateInterface,
+  caja: CajaStateInterface,
 }
 
 // provide typings for `this.$store`
@@ -58,7 +62,8 @@ export default store(function (/* { ssrContext } */) {
     modules: {
        maitre: maitreModule,
        mozo: mozoModule,
-       propietario:propietarioModule
+       propietario:propietarioModule,
+       caja:cajaModule
     },
 
     // enable strict mode (adds overhead!)

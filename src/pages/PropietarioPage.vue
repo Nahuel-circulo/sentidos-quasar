@@ -1,19 +1,36 @@
 <template>
   <q-page class="row items-center justify-center">
     <div class="col-12 col-md-4 row q-pa-md justify-center items-center">
-      <q-date
-        color="positive"
-        v-model="rangeTime"
-        range
-        :locale="myLocale"
-        title="Rango de fechas"
-        @update:model-value="fetchFacturas"
-      />
+      <div class="row justify-center items-center">
+        <q-select
+          class="col-12 q-mb-md"
+          bg-color="white"
+          filled
+          outlined
+          label="Metodo de pago"
+          v-model="metodo"
+          :options="metodosDePago"
+          :option-label="(metodo) => metodo.name"
+          :option-value="(metodo) => metodo"
+          style="min-width: 250px; max-width: 300px"
+        />
+        <q-date
+          class="col-12"
+          color="positive"
+          v-model="rangeTime"
+          style="min-width: 250px; max-width: 300px"
+          range
+          :disable="metodo == ''"
+          :locale="myLocale"
+          title="Rango de fechas"
+          @update:model-value="fetchFacturas"
+        />
+      </div>
     </div>
     <div class="col-12 col-md-8 row justify-center items-center">
       <div class="row">
         <q-table
-        class="col-12"
+          class="col-12"
           title="Listado de facturas emitidas"
           :rows="facturas"
           :columns="columns"
@@ -39,18 +56,21 @@
           </template>
         </q-table>
 
-        <p class="q-mt-md" style="text-align: left;">El total de ingresos en rango de fechas es de ${{ total }}</p>
+        <p class="q-mt-md" style="text-align: left">
+          El total de ingresos en rango de fechas es de
+          <span style="color: green">${{ total }}</span>
+        </p>
       </div>
     </div>
   </q-page>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+<script>
+import { computed, ref } from "vue";
 import moment from "moment";
 import { useStore } from "src/store";
 
-export default defineComponent({
+export default {
   setup() {
     const $store = useStore();
     const rangeTime = ref();
@@ -84,18 +104,22 @@ export default defineComponent({
       pluralDay: "dias",
     };
     const fetchFacturas = () => {
-      console.log(moment(rangeTime.value["from"]).toISOString());
-      console.log(moment(rangeTime.value["to"]).toISOString());
-      $store.dispatch("propietario/fetchFacturas", {
-        desde: moment(rangeTime.value["from"]).toISOString(),
-        hasta: moment(rangeTime.value["to"]).toISOString(),
-        metodoP: "63643fe9b8581428df2eca08",
-      });
+      if (metodo.value != "") {
+        console.log(metodo.value);
+        $store.dispatch("propietario/fetchFacturas", {
+          desde: moment(rangeTime.value["from"]).toISOString(),
+          hasta: moment(rangeTime.value["to"]).toISOString(),
+          metodoP: metodo.value.id,
+        });
+      }
     };
-
+    $store.dispatch("propietario/fetchMetodos");
+    const metodo = ref("");
     const facturas = computed(() => $store.getters["propietario/getFacturas"]);
     const total = computed(() => $store.getters["propietario/getTotal"]);
-
+    const metodosDePago = computed(
+      () => $store.getters["propietario/getMetodos"]
+    );
     return {
       rangeTime,
       fetchFacturas,
@@ -103,7 +127,9 @@ export default defineComponent({
       facturas,
       columns,
       total,
+      metodosDePago,
+      metodo,
     };
   },
-});
+};
 </script>
