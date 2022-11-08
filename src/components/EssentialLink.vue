@@ -2,8 +2,8 @@
   <q-item
     clickable
     :to="link"
+    :disable="title != user.role.name && user.role.name != 'Propietario'"
   >
-  <!-- TODO: desabilitar -->
     <q-item-section
       v-if="icon"
       avatar
@@ -18,7 +18,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { useStore } from 'src/store';
+import { defineComponent,computed } from 'vue';
 
 export default defineComponent({
   name: 'EssentialLink',
@@ -41,6 +42,15 @@ export default defineComponent({
     icon: {
       type: String,
       default: ''
+    }
+  },
+  setup(props) {
+    const $store = useStore()
+    
+    const user = computed(()=> $store.getters['propietario/getUsuarioLogeado'])
+
+    return{
+      user
     }
   }
 });

@@ -3,6 +3,7 @@
     <div class="q-pa-xl row items-center justify-center">
       <div class="col-10">
         <q-table
+          class=""
           title="Pedidos"
           :rows="facturas"
           :columns="columns"
@@ -33,18 +34,33 @@
               </q-td>
               <q-td key="mesa" :props="props">${{ props.row.total }} </q-td>
               <q-td key="comensales" :props="props">
-                <q-btn @click="facturar(props.row)">Facturar</q-btn></q-td
+                <q-btn
+                  class="bg-positive text-white"
+                  @click="facturar(props.row)"
+                  >Facturar</q-btn
+                ></q-td
               >
             </q-tr>
           </template>
         </q-table>
       </div>
-      <div class="col-10 q-mt-lg row">
-        <div class="col-4">
+      <q-stepper
+        v-if="facturaActivaNum != ''"
+        v-model="step"
+        ref="stepper"
+        color="primary"
+        animated
+        class="q-mt-md"
+      >
+        <q-step
+          :name="1"
+          title="Seleccione tipo de pago"
+          :done="step > 1"
+          icon="assignment"
+          color="positive"
+        >
           <q-select
-            v-if="facturaActivaNum != ''"
-            class="col-12 q-mb-md"
-            bg-color="white"
+            bg-color="positive"
             filled
             outlined
             label="Metodo de pago"
@@ -52,57 +68,110 @@
             :options="metodos"
             :option-label="(metodo) => metodo.name"
             :option-value="(metodo) => metodo"
-            style="min-width: 250px; max-width: 300px"
-          />
-        </div>
-
-        <div
-          class="col-4"
-          v-if="metodo != '' && metodo.id != '63643fe9b8581428df2eca08'"
-        >
-          <q-input
-            filled
-            v-model="tarjeta"
-            label="Número de tarjeta"
-            :rules="[
-              (val) =>
-                (val.length >= 16 && val.length <= 18) ||
-                'Minimo 16 digitos, maximo 18.',
-            ]"
-          />
-          <q-input
-            filled
-            v-model="codTarjeta"
-            label="Código de seguridad"
-            :rules="[
-              (val) =>
-                val.length == 3 ||
-                'Ingrese los 3 digitos en el dorso de la tarjeta',
-            ]"
-          />
-          <q-input
-            filled
-            v-model="nombre"
-            label="Nombre y apellido como figura en la tarjeta"
-            :rules="[(val) => val.length || 'Debe ingresar un nombre']"
-          />
-        </div>
-        <div class="col-4 row justify-center items-start">
-          <!-- TODO: Falta generar la factura en la base de datos -->
-          <q-btn
-            v-if="
-              (tarjeta.length >= 16 &&
-                codTarjeta.length == 3 &&
-                nombre.length > 1) ||
-              metodo.id == '63643fe9b8581428df2eca08'
+            style="
+              min-width: 250px;
+              max-width: 300px;
+              margin: 0 auto;
+              color: white;
             "
-            class="q-mx-auto"
+          />
+        </q-step>
+
+        <q-step
+          color="positive"
+          :name="2"
+          :disable="metodo.id == '63643fe9b8581428df2eca08'"
+          title="Ingrese datos de la tarjeta"
+          :done="step > 2"
+          icon="assignment"
+        >
+          <div
+            class="q-pa-sm"
+            style="
+              min-width: 250px;
+              max-width: 300px;
+              margin: 0 auto;
+              color: white;
+            "
+          >
+            <q-input
+              class="q-mb-md"
+              bg-color="positive"
+              filled
+              v-model="nombre"
+              label="Nombre y apellido como figura en la tarjeta"
+              :rules="[(val) => val.length > 3 || 'Debe ingresar un nombre']"
+            />
+            <q-input
+              class="q-mb-md"
+              filled
+              bg-color="positive"
+              v-model="tarjeta"
+              label="Númeto de tarjeta"
+              mask="#### - #### - #### - ####"
+              fill-mask="#"
+              unmasked-value
+              :rules="[(val) => val.length == 16 || 'Ingrese los 16 digitos.']"
+            />
+
+            <q-input
+              class="q-mb-md"
+              filled
+              bg-color="positive"
+              v-model="codTarjeta"
+              label="Código de seguridad"
+              mask="###"
+              :rules="[
+                (val) =>
+                  val.length == 3 ||
+                  'Ingrese los 3 digitos en el dorso de la tarjeta',
+              ]"
+              unmasked-value
+            />
+          </div>
+        </q-step>
+
+        <q-step
+          :name="3"
+          :disable="!isValid && metodo.id != '63643fe9b8581428df2eca08'"
+          title="Generar Factura"
+          icon="assignment"
+          color="positive"
+        >
+          Al generar la factura, se creara una nueva y ya no se podrá modificar
+          <q-btn
+            outline
+            color="info"
+            @click="mostrarFactura(facturaActivaNum, metodo.id)"
             >Generar Factura</q-btn
           >
-        </div>
-      </div>
-      <div class="factura bg-white q-pa-md" id="factura" ref="factura">
-        <div>
+        </q-step>
+
+        <template v-slot:navigation>
+          <q-stepper-navigation>
+            <q-btn
+              :disable="(step == 1 && metodo == '') || step == 3"
+              @click="$refs.stepper.next()"
+              color="positive"
+              label="Continuar"
+            />
+            <q-btn
+              v-if="step > 1"
+              flat
+              color="positive"
+              @click="$refs.stepper.previous()"
+              label="Atrás"
+              class="q-ml-sm"
+            />
+          </q-stepper-navigation>
+        </template>
+      </q-stepper>
+
+      <h6 v-if="mostrar" class="col-10 q-my-md text-center">
+        Factura Generada
+      </h6>
+      <div v-if="mostrar" class="column factura bg-white q-pa-md">
+        <div id="factura" ref="factura">
           <p class="q-ma-xs">Sentidos Tea House & Restaurant</p>
           <p class="q-ma-xs">C.U.I.T. Nro 30692138747</p>
           <p class="q-ma-xs">Ing. Brutos: 30692138747</p>
@@ -127,13 +196,19 @@
                 </div>
               </div>
             </div>
-            <h6 class="q-ma-sm">total ${{facturaActiva.total}}</h6>
+            <h6 class="q-ma-sm">total ${{ facturaActiva.total }}</h6>
           </div>
-          <!-- //TODO: Falta el total -->
-          <q-img style="margin: 0 auto;" src="../assets/qr.jpg" width="200px" :ratio="1" />
+          <q-img
+            style="margin: 0 auto"
+            src="../assets/qr.jpg"
+            width="200px"
+            :ratio="1"
+          />
         </div>
+        <q-btn class="bg-orange text-white q-mt-md" @click="generarPDF"
+          >Descargar</q-btn
+        >
       </div>
-      <q-btn @click="generarPDF">generar</q-btn>
     </div>
   </q-page>
 </template>
@@ -163,7 +238,15 @@ export default {
       $store.dispatch("caja/fetchFacturasImpagas");
       $store.dispatch("caja/fetchMetodos");
     };
-
+    const mostrar = ref(false);
+    const mostrarFactura = (factura_id, metodo_id) => {
+      // pagar
+      mostrar.value = true;
+      $store.dispatch("caja/pagarFactura", {
+        id_factura: factura_id,
+        metodo: metodo_id,
+      });
+    };
     fetchFacturasYMetodos();
     const factura = ref();
     const facturaActivaNum = ref("");
@@ -207,6 +290,15 @@ export default {
     const tarjeta = ref("");
     const nombre = ref("");
     const codTarjeta = ref("");
+    const step = ref(1);
+
+    const isValid = computed(() => {
+      return (
+        tarjeta.value.length == 16 &&
+        codTarjeta.value.length == 3 &&
+        nombre.value.length > 3
+      );
+    });
     return {
       facturas,
       metodos,
@@ -223,7 +315,31 @@ export default {
       hora,
       factura,
       generarPDF,
+      mostrarFactura,
+      mostrar,
+      isValid,
+      step,
     };
   },
 };
 </script>
+
+<style lang="sass">
+.my-sticky-column-table
+  /* specifying max-width so the example can
+    highlight the sticky column on any browser window */
+  max-width: 600px
+
+  thead tr:first-child th:first-child
+    /* bg color is important for th; just specify one */
+    background-color: #fff
+
+  td:first-child
+    background-color: #f5f5dc
+
+  th:first-child,
+  td:first-child
+    position: sticky
+    left: 0
+    z-index: 1
+</style>

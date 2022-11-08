@@ -85,6 +85,7 @@
               </q-tr>
             </template>
           </q-table>
+          <p class="q-mt-sm" v-if="mesaActiva == ''">Para agregar pedidos, primero debe seleccionar una mesa</p>
         </div>
       </div>
       <div class="col-12 col-md-4">
@@ -140,7 +141,7 @@
           :virtual-scroll-item-size="50"
         >
           <template v-slot:top-right>
-            <q-btn color="orange" @click="cerrarMesa(mesaActiva)" outline
+            <q-btn color="orange" :disable="mesaActiva == ''" @click="cerrarMesa(mesaActiva)" outline
               >Cerrar mesa</q-btn
             >
           </template>
@@ -236,6 +237,7 @@ export default {
       fechaFormateada.value = date.value.replaceAll("/", "-");
       mesaActiva.value = "";
       usuarioReserva.value = "";
+      $store.commit("mozo/SET_PEDIDOS",[])
       $store.dispatch("mozo/fetchReservas", {
         fecha: fechaFormateada.value,
       });

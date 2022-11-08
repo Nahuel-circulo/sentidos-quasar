@@ -1,6 +1,7 @@
 import { GetterTree } from 'vuex';
 import { StateInterface } from '../index';
 import { PropietarioStateInterface } from './state';
+import state from './state';
 
 
 const getters: GetterTree<PropietarioStateInterface, StateInterface> = {
@@ -12,6 +13,12 @@ const getters: GetterTree<PropietarioStateInterface, StateInterface> = {
   },
   getMetodos: (state) => {
     return state.metodosDePago
+  },
+  getErrorMessage:(state)=>{
+    return state.errorMessage
+  },
+  getUsuarioLogeado:(state)=>{
+    return state.usuarioLogeado
   }
 };
 

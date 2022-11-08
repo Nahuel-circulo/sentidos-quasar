@@ -25,12 +25,13 @@ const actions: ActionTree<CajaStateInterface, StateInterface> = {
       console.log(error);
     }
   },
-  pagarFactura: async ({ commit, state }, datoFacturacion: { id_factura: string, metodo: string }) => {
+  pagarFactura: async ({ commit, state,dispatch }, datoFacturacion: { id_factura: string, metodo: string }) => {
     try {
       const { data } = await api_payload.put(`/factura/${datoFacturacion.id_factura}`, {
         metodo_de_pago: datoFacturacion.metodo
       })
-
+      console.log(data)
+      dispatch('fetchFacturasImpagas')
     } catch (error) {
       console.log(error);
     }

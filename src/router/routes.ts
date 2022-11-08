@@ -2,11 +2,6 @@ import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
-  },
-  {
     path: '/mozo',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '/mozo', component: () => import('pages/MozoPage.vue') }],
@@ -32,9 +27,9 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '/chef', component: () => import('pages/ChefPage.vue') }],
   },
   {
-    path: '/login',
+    path: '/',
     component: () => import('layouts/LoginLayout.vue'),
-    children: [{ path: '/login', component: () => import('pages/LoginPage.vue') }],
+    children: [{ path: '/', component: () => import('pages/LoginPage.vue') }],
   },
 
   // Always leave this as last one,

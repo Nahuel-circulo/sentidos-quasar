@@ -5,7 +5,15 @@
       {{ cantidad }}
     </span>
     <q-btn @click="add" round color="positive" size="xs" icon="add" />
-    <q-btn flat no-caps color="info" :disable="MesaActiva == ''" @click="agregar()">Agregar</q-btn>
+    <q-btn
+      flat
+      no-caps
+      label="Agregar"
+      color="info"
+      :disable="MesaActiva == ''"
+      @click="agregar()"
+      >
+    </q-btn>
   </div>
 </template>
 
@@ -23,9 +31,9 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    MesaActiva:{
-      type:String,
-    }
+    MesaActiva: {
+      type: String,
+    },
   },
   setup(props) {
     const $store = useStore();
@@ -41,7 +49,10 @@ export default defineComponent({
 
     const agregar = () => {
       console.log(" ", props.identificador);
-      if (props.identificador.includes("M")||props.identificador.includes("N")) {
+      if (
+        props.identificador.includes("M") ||
+        props.identificador.includes("N")
+      ) {
         $store.dispatch("mozo/postPedido", {
           identificador: props.identificador,
           cantidad: cantidad.value,

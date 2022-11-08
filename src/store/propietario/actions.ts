@@ -26,7 +26,6 @@ const actions: ActionTree<PropietarioStateInterface, StateInterface> = {
           total += Number(factura.total)
         });
         commit('SET_TOTAL', total)
-
       } else {
         commit('SET_FACTURAS', [])
         commit('SET_TOTAL', 0)
@@ -34,13 +33,26 @@ const actions: ActionTree<PropietarioStateInterface, StateInterface> = {
     } catch (error) {
       console.log(error);
     }
-
   },
   fetchMetodos: async ({ commit }) => {
-
     try {
       const { data } = await api_payload.get(`/metodop`)
       commit('SET_METODOS', data.docs)
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  login: async ({commit,state},usuario:{email:string,password:string})=>{
+    console.log(usuario.email,usuario.password)
+    try {
+      const { data } = await api_payload.get(`/personal?where[email][equals]=${usuario.email}&where[password][equals]=${usuario.password}`)
+      if (data.docs.length) {
+        commit('SET_USUARIO_LOGEADO', data.docs[0])
+      } else{
+        commit('SET_ERROR_MESSAGE','Usuario o contraseña incorrecto')
+      }
+
+      console.log(state.errorMessage)
     } catch (error) {
       console.log(error);
     }

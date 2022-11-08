@@ -12,6 +12,8 @@
         />
 
         <q-toolbar-title> Sentidos - Restaurante y casa de té </q-toolbar-title>
+        <p class="q-ma-none">{{ usuario.name }}</p>
+        <q-btn flat @click="salir()">Salir</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -27,15 +29,18 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container class=" q-px-xl ">
+    <q-page-container class="q-px-xl">
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, computed, onBeforeUnmount } from "vue";
 import EssentialLink from "components/EssentialLink.vue";
+import { useStore } from "src/store";
+import { useRouter } from "vue-router";
+import router from "src/router";
 
 const linksList = [
   {
@@ -78,10 +83,23 @@ export default defineComponent({
   },
 
   setup() {
+    const $store = useStore();
+    const $router = useRouter();
+    const usuario = computed(
+      () => $store.getters["propietario/getUsuarioLogeado"]
+    );
     const leftDrawerOpen = ref(false);
+    const salir = () => {
+      $router.push("/");
+    };
 
+    onBeforeUnmount(() => {
+      $store.commit("propietario/SET_USUARIO_LOGEADO", {});
+    });
     return {
       essentialLinks: linksList,
+      usuario,
+      salir,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -93,11 +111,14 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .mybg {
-  background-color:hsla(31,0%,100%,1);
-background-image:
-radial-gradient(at 0% 93%, hsla(289,87%,62%,0.37) 0px, transparent 50%),
-radial-gradient(at 10% 3%, hsla(229,83%,79%,0.37) 0px, transparent 50%),
-radial-gradient(at 72% 100%, hsla(1,99%,76%,0.31) 0px, transparent 50%),
-radial-gradient(at 96% 45%, hsla(66,71%,76%,0.35) 0px, transparent 50%);
+  background-color: hsla(31, 0%, 100%, 1);
+  background-image: radial-gradient(
+      at 0% 93%,
+      hsla(289, 87%, 62%, 0.37) 0px,
+      transparent 50%
+    ),
+    radial-gradient(at 10% 3%, hsla(229, 83%, 79%, 0.37) 0px, transparent 50%),
+    radial-gradient(at 72% 100%, hsla(1, 99%, 76%, 0.31) 0px, transparent 50%),
+    radial-gradient(at 96% 45%, hsla(66, 71%, 76%, 0.35) 0px, transparent 50%);
 }
 </style>
