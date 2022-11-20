@@ -76,7 +76,29 @@ const actions: ActionTree<MozoStateInterface, StateInterface> = {
     } catch (error) {
       console.log(error);
     }
-  }
+  },
+  habilitarProducto: async ({ commit, state,dispatch }, id: String) => {
+    try {
+      const { data } = await api_payload.put(`/producto/${id}`, {
+        disponible: true
+      })
+      console.log(data)
+      dispatch('fetchProductos')
+    } catch (error) {
+      console.log(error);
+    }
+  },
+  deshabilitarProducto: async ({ commit, state,dispatch }, id: String) => {
+    try {
+      const { data } = await api_payload.put(`/producto/${id}`, {
+        disponible: false
+      })
+      console.log(data)
+      dispatch('fetchProductos')
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
 
 export default actions;

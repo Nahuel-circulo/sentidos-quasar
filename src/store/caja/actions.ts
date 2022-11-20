@@ -44,7 +44,7 @@ const actions: ActionTree<CajaStateInterface, StateInterface> = {
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 };
 
 export default actions;
